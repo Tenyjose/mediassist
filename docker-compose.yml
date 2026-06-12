@@ -1,0 +1,57 @@
+version: '3.9'
+
+services:
+  mock-appointments-api:
+    build: ./mock-appointments-api
+    ports:
+      - "8001:8001"
+    environment:
+      - JWT_SECRET=${JWT_SECRET:-mediassist-mock-secret}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  retrieval-api:
+    build: ./retrieval-api
+    ports:
+      - "8000:8000"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  conversation-api:
+    build: ./conversation-api
+    ports:
+      - "8002:8002"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - APPOINTMENTS_API_URL=http://mock-appointments-api:8001
+      - RETRIEVAL_API_URL=http://retrieval-api:8000
+    depends_on:
+      mock-appointments-api:
+        condition: service_healthy
+      retrieval-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8002/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        - REACT_APP_CONVERSATION_API=http://localhost:8002
+    ports:
+      - "3000:80"
+    depends_on:
+      conversation-api:
+        condition: service_healthy

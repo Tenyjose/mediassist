@@ -1,0 +1,54 @@
+name: MediAssist CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build-and-health-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create .env from secrets
+        run: |
+          echo "ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}" > .env
+          echo "JWT_SECRET=ci-test-secret" >> .env
+
+      - name: Build Docker images
+        run: docker compose build
+
+      - name: Start all services
+        run: docker compose up -d
+
+      - name: Wait for services to initialise
+        run: |
+          echo "Waiting 45s for sentence-transformers model download..."
+          sleep 45
+          docker compose ps
+
+      - name: Health check — mock-appointments-api
+        run: curl -sf http://localhost:8001/health
+
+      - name: Health check — retrieval-api
+        run: curl -sf http://localhost:8000/health
+
+      - name: Health check — conversation-api
+        run: curl -sf http://localhost:8002/health
+
+      - name: Smoke test — appointments endpoint (expect 401/403)
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8001/appointments)
+          [ "$STATUS" = "403" ] || [ "$STATUS" = "401" ] || (echo "Unexpected status $STATUS" && exit 1)
+
+      - name: Print service logs on failure
+        if: failure()
+        run: docker compose logs
+
+      - name: Tear down
+        if: always()
+        run: docker compose down --volumes
