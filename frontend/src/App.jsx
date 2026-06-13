@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import './App.css';
 
-const CONVERSATION_API = 'http://localhost:8002';
+const CONVERSATION_API = process.env.REACT_APP_CONVERSATION_API || 'http://localhost:8002';
 
 const WELCOME_MESSAGE = {
   role: 'assistant',
