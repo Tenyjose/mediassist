@@ -36,8 +36,9 @@ services:
       - key: RETRIEVAL_API_URL
         value: https://mediassist-retrieval.onrender.com
 
-  - type: static
+  - type: web
     name: mediassist-ui
+    env: static
     buildCommand: npm --prefix frontend install && npm --prefix frontend run build
     staticPublishPath: ./frontend/build
     envVars:
