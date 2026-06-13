@@ -3,7 +3,7 @@ services:
     name: mediassist-appointments
     env: docker
     dockerfilePath: ./mock-appointments-api/Dockerfile
-    dockerContext: ./mock-appointments-api
+    dockerContext: .
     plan: free
     port: 8001
     envVars:
@@ -14,7 +14,7 @@ services:
     name: mediassist-retrieval
     env: docker
     dockerfilePath: ./retrieval-api/Dockerfile
-    dockerContext: ./retrieval-api
+    dockerContext: .
     plan: free
     port: 8000
     envVars:
@@ -25,7 +25,7 @@ services:
     name: mediassist-conversation
     env: docker
     dockerfilePath: ./conversation-api/Dockerfile
-    dockerContext: ./conversation-api
+    dockerContext: .
     plan: free
     port: 8002
     envVars:
