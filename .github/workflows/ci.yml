@@ -27,8 +27,8 @@ jobs:
 
       - name: Wait for services to initialise
         run: |
-          echo "Waiting 45s for sentence-transformers model download..."
-          sleep 45
+          echo "Waiting 20s for services to start..."
+          sleep 20
           docker compose ps
 
       - name: Health check — mock-appointments-api

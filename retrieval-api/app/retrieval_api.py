@@ -132,7 +132,7 @@ claude_client = None
 @asynccontextmanager
 async def lifespan(app):
     global collection, claude_client
-    ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")
+    ef = embedding_functions.DefaultEmbeddingFunction()
     chroma = chromadb.Client()
     collection = chroma.get_or_create_collection("hospital_faq", embedding_function=ef)
     if collection.count() == 0:

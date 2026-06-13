@@ -7,10 +7,6 @@
 # REACT_APP_CONVERSATION_API values below to match whatever names
 # you end up with before your first deploy.
 #
-# WARNING — retrieval-api installs PyTorch + sentence-transformers (~2 GB image).
-# The free tier (512 MB RAM) may OOM at startup. If it crashes, upgrade
-# that one service to the Starter plan ($7/mo) or swap the embedding
-# model for a lighter alternative.
 #
 # Free tier services spin down after 15 min of inactivity.
 # First request after a cold start can take 30-60 s.
@@ -28,13 +24,13 @@ services:
       - key: JWT_SECRET
         generateValue: true   # Render generates a secure random value
 
-  # ── Retrieval API (ChromaDB + sentence-transformers + Claude) ──────
+  # ── Retrieval API (ChromaDB + Claude) ─────────────────────────────
   - type: web
     name: mediassist-retrieval
     env: docker
     dockerfilePath: ./retrieval-api/Dockerfile
     dockerContext: ./retrieval-api
-    plan: free               # See RAM warning above
+    plan: free
     port: 8000
     envVars:
       - key: ANTHROPIC_API_KEY
